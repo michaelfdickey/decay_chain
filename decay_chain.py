@@ -90,20 +90,14 @@ def populate_sample(element, number_atoms):
 # update sample based on decay rates
 def update_sample(sample):
     print(" > running update_sample")
-    #print(" ~ running update sample ~ ")
     for item_index in range(len(sample)):
         current_item = sample[item_index]
-        #print(" current item is: ", sample[item_index])
-        # get decay product(s)
-        current_entry = elements[sample[item_index]]
-        #print("  current_entry is: ", current_entry)
-        
-        #if current_entry['half-life'] != 'stable':
-        #
-        #    #print("  decay_isotope is: ", decay_isotope)
-        decay_isotope = decay_element(current_entry)
-
-        sample[item_index] = decay_isotope
+        print("  current item is: ", sample[item_index], type(sample[item_index]))
+        current_element = elements[sample[item_index]]
+        print("  current_element is: ", current_element, type(current_element))
+        element = decay_element(current_element)
+        print("  current_element is: ", current_element, type(current_element))
+        sample[item_index] = element
 
 
 def display_sample(simulation_length):
@@ -141,7 +135,7 @@ def decay_element(element):
 
     if random_num < probability_of_decay:
         #this nuclear decays
-        element = element['decay_chains'][0]
+        element = element['decay_chains'][0][0]     # first decay chain, first entry is element id
         print("   element is now: ", element)
         return element
     else:
@@ -160,7 +154,7 @@ print(" ")
 
 # for testing
 start_element = 'P1N2'
-number_atoms = 10
+number_atoms = 1
 simulation_length = 1
 
 print(" ")
@@ -174,18 +168,15 @@ simulation_integer = simulation_length / 100
 
 # test preconditions and valid input
 
-"""
 # determine decay products
 print(" ")
 decay_products(current_element)
 sample = populate_sample(current_element,number_atoms)
 update_sample(sample)
 #display_sample(simulation_length)
-"""
+
 
 # test decay_element 
-decay_element(P1N2)
+#decay_element(P1N2)
 
-
-
-#print(sample)
+print(sample)
