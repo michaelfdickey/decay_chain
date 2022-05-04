@@ -28,7 +28,7 @@ P1N0['id'] = 'P1N0'
 P1N0['name'] = "Hydrogen-1"
 P1N0['protons'] = 1
 P1N0['neutrons'] = 0
-P1N0['half-life'] = "stable"
+P1N0['half-life'] = [0,"stable"]
 
 # Deuterium
 P1N1 = {}
@@ -36,7 +36,7 @@ P1N1['id'] = 'P1N1'
 P1N1['name'] = "Deuterium"
 P1N1['protons'] = 1
 P1N1['neutrons'] = 1
-P1N1['half-life'] = "stable"
+P1N1['half-life'] = [0,"stable"]
 
 # Tritium
 P1N2 = {}
@@ -49,10 +49,11 @@ P1N2['decay_chains'] = [['P2N1','e-','-Ve']]
 
 ## Helium 3 - P2N1
 P2N1 = {}
+P2N1['id'] = 'P2N1'
 P2N1['name'] = "Helium-3"
 P2N1['protons'] = 2
 P2N1['neutrons'] = 1
-P2N1['half-life'] = "stable"
+P2N1['half-life'] = [0,"stable"]
 
 
 elements = {}
@@ -67,7 +68,7 @@ elements['P2N1'] = P2N1
 
 # print out particle and products
 def decay_products(element):
-    print(" > running decay_products ")
+    #print(" > running decay_products ")
     #print("element is: ", element)
     #print("type(element) is: ", type(element))
     #print(element['name'])
@@ -76,15 +77,15 @@ def decay_products(element):
 
 
 def populate_sample(element, number_atoms):
-    print(" ")
-    print(" > running populate_sample ")
+    #print(" ")
+    #print(" > running populate_sample ")
     sample = []
     #print(" element is: ", element['id'])
     #print(" number_atoms is: ", number_atoms)
     for item in range(number_atoms):
         sample.append(element['id'])
     #print("  sample is: ")
-    print("   sample is: ", sample)
+    #print("   sample is: ", sample)
     return sample
 
 
@@ -96,8 +97,8 @@ def update_sample(sample):
     Arguments:
     sample - dictionary of elements that make up the sample
     """
-    print(" ")
-    print(" > running update_sample")
+    #print(" ")
+    #print(" > running update_sample")
     for item_index in range(len(sample)):
         current_item = sample[item_index]
         #print("    current item is: ", sample[item_index], type(sample[item_index]))
@@ -106,13 +107,13 @@ def update_sample(sample):
         element = decay_element(current_element)
         #print("    current_element is: ", current_element, type(current_element))
         sample[item_index] = element
-    print(" ")
-    print(" sample is: ", sample)
+    #print(" ")
+    #print(" sample is: ", sample)
 
 
-def display_sample(simulation_length):
-    print(" ")
-    print(" > running display_sample")
+def display_sample(sample,simulation_length):
+    #print(" ")
+    #print(" > running display_sample")
     #print( " running DISPLAY SAMPLE")
     time_steps_length = simulation_length / 100     # 1 / 10 = .1
     #print(" time_step_length: ", time_steps_length)
@@ -121,7 +122,7 @@ def display_sample(simulation_length):
     time_count = 0
     for step in range(time_steps_total):
         os.system('cls')
-        print(" time step: ", step)
+        print(" time step: .", step, " years")
         print(sample)
         update_sample(sample)
 
@@ -136,19 +137,23 @@ def decay_element(element):
     products - a list contining the decay products, if any are atoms it returns a dictionary of that element nested in the table
     """
     #https://scipython.com/book2/chapter-6-numpy/examples/simulating-radioactive-decay/
-    print(" ")
-    print(" > > running decay_element")
-    #print("  element is: ", element)
-    #print("  element['half-life']: ", element['half-life'])
-    #print("  element['decay_chains']:", element['decay_chains'])
+    #print(" ")
+    #print(" > > running decay_element")
+    #print("    element is: ", element)
+    #print("    element['half-life']: ", element['half-life'])
+    #print("    element['decay_chains']:", element['decay_chains'])
     
-    half_life = element['half-life'][0]
-    lifetime = half_life / np.log(2)
-    #print("  lifetime:",lifetime)
-    delta_time = 12.32
-    probability_of_decay = (delta_time / lifetime) * 1000
-    #print("  probability_of_decay: ", probability_of_decay)
-    
+    if element['half-life'][1] == "stable":
+        probability_of_decay = 0
+    if element['half-life'][1] != "stable":
+        half_life = element['half-life']
+        #print("    half_life: ", half_life)
+        lifetime = half_life[0] / np.log(2)
+        #print("  lifetime:",lifetime)
+        delta_time = .1232      # 1 / 10 = .1                       # timestep in years is wrong get this worked out
+        probability_of_decay = (delta_time / lifetime) * 1000
+        #print("  probability_of_decay: ", probability_of_decay)
+
     random_num = random.random() * 1000
     
     #print("   random_num: ", random_num)
@@ -156,11 +161,11 @@ def decay_element(element):
     if random_num < probability_of_decay:
         #this nuclear decays
         element = element['decay_chains'][0][0]     # first decay chain, first entry is element id
-        print("   element is now: ", element)
+        #print("   element decayed and is now: ", element)
         return str(element)
     else:
         #did not decay
-        print("   element is: ", element['id'])
+        #print("   element did not decay and is: ", element)
         return element['id']
 
     
@@ -175,30 +180,34 @@ print(" ")
 
 # for testing
 start_element = 'P1N2'
-number_atoms = 2
-simulation_length = 1
+number_atoms = 100
+simulation_length = 10
 print(" ")
 print("you are starting with: ", start_element)
 print("starting with:         ", number_atoms, "atoms")
-print("simulation length is:  ", simulation_length)
+print("simulation length is:  ", simulation_length, " years")
 
 
 current_element = elements[start_element]
 #print(" current_element is: ", current_element)
-simulation_integer = simulation_length / 100
+#simulation_integer = simulation_length / 100
 
 # test preconditions and valid input
 
 # determine decay products
 print(" ")
 sample = populate_sample(current_element, number_atoms)     # populates sample
-update_sample(sample)                                       # updates sample, this is where the decay happens
-
+#update_sample(sample)                                       # updates sample, this is where the decay happens
 #decay_products(current_element)
-#display_sample(simulation_length)
+display_sample(sample,simulation_length)
 
 
 # test decay_element 
 #decay_element(P1N2)
 
 #print(sample)
+
+
+## NEXT 
+# next find time steps and update sample /refresh screen with that. 
+
